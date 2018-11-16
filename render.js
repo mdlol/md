@@ -2,15 +2,12 @@
     const urlParams = new URLSearchParams(window.location.search);
     const r = urlParams.get('r') || "ethereum/eth2.0-specs";
     const [user, repo] = r.split("/")
-    document.getElementById('repository').innerHTML = `<h1>${user}/${repo}</h1>`
-
-
-    let tree = `https://api.github.com/repos/${user}/${repo}/git/trees/master?recursive=1`
-    let dir = document.getElementById('dir');
-    let md = window.markdownit({
+    const tree = `https://api.github.com/repos/${user}/${repo}/git/trees/master?recursive=1`
+    const dir = document.getElementById('dir');
+    const md = window.markdownit({
         langPrefix: 'language-',
         linkify: true,
-        highlight: function (str, lang) {
+        highlight: (str, lang) => {
             if (lang && hljs.getLanguage(lang)) {
                 try {
                     return hljs.highlight(lang, str).value;
@@ -20,55 +17,55 @@
             return ''; // use external default escaping
         }
     });
-    let content = document.getElementById('content');
-    let toc = document.getElementById('toc');
+    const content = document.getElementById('content');
+    const toc = document.getElementById('toc');
+
+    document.getElementById('repository').innerHTML = `<h5>${user}/${repo}</h5>`
+
 
 
     function build_a(path) {
         url = `https://raw.githubusercontent.com/${user}/${repo}/master/${path}`
-        return ('<a onclick="render(\'' + url + '\')">' + path + '</a>')
+        return `<a onclick="render('${url}')">${path}</a>`
     }
 
     function build_dir(array) {
-        uls = array.map(function (path) {
-            return ("<li>" + build_a(path) + "</li>")
-        }).join("");
-        dir.innerHTML = "<ul>" + uls + "</ul>";
+        lis = array
+            .map((path) => `<li>${build_a(path)}</li>`)
+            .join("");
+        dir.innerHTML = `<ul>${lis}</ul>`;
 
     }
 
     window.render = function (url) {
         fetch(url)
             .then((res) => res.text())
-            .then(
-                function (text) {
-                    content.innerHTML = md.render(text);
-                }
-            ).then(
-                function () {
-                    toc.innerHTML = "";
-                    new Toc('content', {
-                        'level': 4,
-                        'top': 0,
-                        'class': 'toc',
-                        'targetId': 'toc'
-                    });
-                }
+            .then((text) => {
+                content.innerHTML = md.render(text);
+            })
+            .then(() => {
+                toc.innerHTML = "";
+                new Toc('content', {
+                    level: 4,
+                    top: 0,
+                    class: 'toc',
+                    targetId: 'toc'
+                });
+            }
             );
-
-
-
     }
 
     window.onload = function () {
         fetch(tree)
             .then((res) => res.json())
-            .then(function (json) {
+            .then((json) => {
                 mds = json.tree
-                    .filter(function (node) { return (node.path.slice(-3) == ".md") })
-                    .map(function (node) { return (node.path) })
+                    .filter((node) => node.path.slice(-3) == ".md")
+                    .map((node) => node.path)
                 build_dir(mds)
-                default_md = mds.filter((md) => md.startsWith("README"))[0] || mds[0]
+                default_md =
+                    mds.filter((md) => md.startsWith("README"))[0]
+                    || mds[0]
                 render(`https://raw.githubusercontent.com/${user}/${repo}/master/${default_md}`)
             });
     }
