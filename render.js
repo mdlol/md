@@ -1,5 +1,11 @@
 (function (window) {
-    let tree = "https://api.github.com/repos/ethereum/eth2.0-specs/git/trees/master?recursive=1"
+    const urlParams = new URLSearchParams(window.location.search);
+    const r = urlParams.get('r') || "ethereum/eth2.0-specs";
+    const [user, repo] = r.split("/")
+    document.getElementById('repository').innerHTML = `<h1>${user}/${repo}</h1>`
+
+
+    let tree = `https://api.github.com/repos/${user}/${repo}/git/trees/master?recursive=1`
     let dir = document.getElementById('dir');
     let md = window.markdownit({
         langPrefix: 'language-',
@@ -19,7 +25,7 @@
 
 
     function build_a(path) {
-        url = "https://raw.githubusercontent.com/ethereum/eth2.0-specs/master/" + path
+        url = `https://raw.githubusercontent.com/${user}/${repo}/master/${path}`
         return ('<a onclick="render(\'' + url + '\')">' + path + '</a>')
     }
 
@@ -62,7 +68,8 @@
                     .filter(function (node) { return (node.path.slice(-3) == ".md") })
                     .map(function (node) { return (node.path) })
                 build_dir(mds)
-                render("https://raw.githubusercontent.com/ethereum/eth2.0-specs/master/" + mds[1])
+                default_md = mds.filter((md) => md.startsWith("README"))[0] || mds[0]
+                render(`https://raw.githubusercontent.com/${user}/${repo}/master/${default_md}`)
             });
     }
 
