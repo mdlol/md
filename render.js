@@ -1,7 +1,19 @@
 (function (window) {
     let tree = "https://api.github.com/repos/ethereum/eth2.0-specs/git/trees/master?recursive=1"
     let dir = document.getElementById('dir');
-    let md = window.markdownit();
+    let md = window.markdownit({
+        langPrefix: 'language-',
+        linkify: true,
+        highlight: function (str, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                try {
+                    return hljs.highlight(lang, str).value;
+                } catch (__) { }
+            }
+
+            return ''; // use external default escaping
+        }
+    });
     let content = document.getElementById('content');
     let toc = document.getElementById('toc');
 
