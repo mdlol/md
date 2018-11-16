@@ -30,8 +30,8 @@
                 function () {
                     toc.innerHTML = "";
                     new Toc('content', {
-                        'level': 3,
-                        'top': 200,
+                        'level': 4,
+                        'top': 0,
                         'class': 'toc',
                         'targetId': 'toc'
                     });
