@@ -24,17 +24,53 @@
 
 
 
-    function build_a(path) {
+    function build_a(path, file_name) {
         url = `https://raw.githubusercontent.com/${user}/${repo}/master/${path}`
-        return `<a href="#" onclick="render('${url}')">${path}</a>`
+        return `<a href="#" onclick="render('${url}')">📄 ${file_name}</a>`
+    }
+    function path_to_tree(path_chunks, tree, path) {
+        if (path_chunks.length === 1) {
+            tree.push({
+                name: path_chunks[0],
+                type: 'file',
+                path: path
+            })
+        } else {
+            node_index = tree.findIndex((node) => node.name === path_chunks[0])
+            if (node_index > -1) {
+                tree[node_index].children = path_to_tree(path_chunks.slice(1), tree[node_index].children, path)
+            } else {
+                tree.push({
+                    name: path_chunks[0],
+                    type: 'dir',
+                    children: path_to_tree(path_chunks.slice(1), [], path)
+                })
+            }
+        }
+        return tree
+    }
+    function path_tree_to_dom(tree) {
+        result = tree.map((node) => {
+            if (node.type === 'file') {
+                return `<li>${build_a(node.path, node.name)}</li>`
+            } else {
+                return `<li>📁 ${node.name}</li>${path_tree_to_dom(node.children)}`
+            }
+        }).join('');
+        return `<ul>${result}</ul>`
     }
 
-    function build_dir(array) {
-        lis = array
-            .map((path) => `<li>${build_a(path)}</li>`)
-            .join("");
-        dir.innerHTML = `<ul>${lis}</ul>`;
+    function build_dir(paths) {
+        paths_with_init = [[]].concat(paths)
+        dir_tree = paths_with_init.reduce((tree, path) => {
+            console.log("fooooooo", tree)
+            chunks = path.split('/')
+            return path_to_tree(chunks, tree, path)
+        })
 
+        console.log(dir_tree)
+        dom = path_tree_to_dom(dir_tree, [])
+        dir.innerHTML = dom
     }
 
     window.render = function (url) {
