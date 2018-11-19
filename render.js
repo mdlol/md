@@ -26,7 +26,7 @@
 
     function build_a(path) {
         url = `https://raw.githubusercontent.com/${user}/${repo}/master/${path}`
-        return `<a onclick="render('${url}')">${path}</a>`
+        return `<a href="#" onclick="render('${url}')">${path}</a>`
     }
 
     function build_dir(array) {
