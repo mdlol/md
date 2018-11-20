@@ -1,9 +1,13 @@
 (function (window) {
     const urlParams = new URLSearchParams(window.location.search);
     const r = urlParams.get('r') || "ethereum/eth2.0-specs";
+    const wiki = urlParams.get('wiki');
     const [user, repo] = r.split("/")
     const tree = `https://api.github.com/repos/${user}/${repo}/git/trees/master?recursive=1`
     const dir = document.getElementById('dir');
+    const content = document.getElementById('content');
+    const toc = document.getElementById('toc');
+    const repository = document.getElementById('repository');
     const md = window.markdownit({
         langPrefix: 'language-',
         linkify: true,
@@ -17,11 +21,6 @@
             return ''; // use external default escaping
         }
     });
-    const content = document.getElementById('content');
-    const toc = document.getElementById('toc');
-
-    document.getElementById('repository').innerHTML = `<h5>${user}/${repo}</h5>`
-
 
 
     function build_a(path, file_name) {
@@ -92,18 +91,24 @@
     }
 
     window.onload = function () {
-        fetch(tree)
-            .then((res) => res.json())
-            .then((json) => {
-                mds = json.tree
-                    .filter((node) => node.path.slice(-3) == ".md")
-                    .map((node) => node.path)
-                build_dir(mds)
-                default_md =
-                    mds.filter((md) => md.startsWith("README"))[0]
-                    || mds[0]
-                render(`https://raw.githubusercontent.com/${user}/${repo}/master/${default_md}`)
-            });
+        if (wiki.startsWith('https://github.com')) {
+            [_user, _repo, _wiki, page] = wiki.replace('https://github.com/', '').split('/');
+            render(`https://raw.githubusercontent.com/wiki/${_user}/${_repo}/${page}.md`);
+        } else {
+            fetch(tree)
+                .then((res) => res.json())
+                .then((json) => {
+                    repository.innerHTML = `<h5>${user}/${repo}</h5>`
+                    mds = json.tree
+                        .filter((node) => node.path.slice(-3) == ".md")
+                        .map((node) => node.path)
+                    build_dir(mds)
+                    default_md =
+                        mds.filter((md) => md.startsWith("README"))[0]
+                        || mds[0]
+                    render(`https://raw.githubusercontent.com/${user}/${repo}/master/${default_md}`)
+                });
+        }
     }
 
 })(window);
