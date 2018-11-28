@@ -1,7 +1,7 @@
 (function (window) {
     const urlParams = new URLSearchParams(window.location.search);
     const r = urlParams.get('r') || "ethereum/eth2.0-specs";
-    const wiki = urlParams.get('wiki');
+    const wiki = urlParams.get('wiki') || "";
     const [user, repo] = r.split("/")
     const tree = `https://api.github.com/repos/${user}/${repo}/git/trees/master?recursive=1`
     const dir = document.getElementById('dir');
