@@ -12,7 +12,7 @@
     const current_dir = p.split("/").slice(0, -1).join("/");
     const md = window.markdownit({
         langPrefix: 'language-',
-        linkify: true,
+        linkify: false,
         highlight: (str, lang) => {
             if (lang && hljs.getLanguage(lang)) {
                 try {
@@ -22,16 +22,19 @@
 
             return ''; // use external default escaping
         },
-        replaceLink: function (link, type) {
-            if (!link.startsWith("http") && !link.startsWith("#")) {
-                if (type === 'link_open') {
+        replaceLink: function (link, type, token) {
+            if (type === 'link_open') {
+                if (link.startsWith("#")) {
+                    return link
+                } else if (!link.startsWith("http")) {
                     return `?p=${current_dir}/${link}`;
-                } else if (type === 'image') {
-                    return `https://raw.githubusercontent.com/${user}/${repo}/master/${current_dir}/${link}`;
+                } else {
+                    token.attrs.push(["target", "_blank"])
                 }
-            } else {
-                return link
+            } else if (type === 'image' && !link.startsWith("http")) {
+                return `https://raw.githubusercontent.com/${user}/${repo}/master/${current_dir}/${link}`;
             }
+            return link
         }
     }).use(window.markdownitReplaceLink);
 
