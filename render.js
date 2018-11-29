@@ -2,12 +2,14 @@
     const urlParams = new URLSearchParams(window.location.search);
     const r = urlParams.get('r') || "ethereum/eth2.0-specs";
     const wiki = urlParams.get('wiki') || "";
+    const p = urlParams.get('p') || "";
     const [user, repo] = r.split("/")
     const tree = `https://api.github.com/repos/${user}/${repo}/git/trees/master?recursive=1`
     const dir = document.getElementById('dir');
     const content = document.getElementById('content');
     const toc = document.getElementById('toc');
     const repository = document.getElementById('repository');
+    const current_dir = p.split("/").slice(0, -1).join("/");
     const md = window.markdownit({
         langPrefix: 'language-',
         linkify: true,
@@ -19,13 +21,27 @@
             }
 
             return ''; // use external default escaping
+        },
+        replaceLink: function (link, type) {
+            if (!link.startsWith("http") && !link.startsWith("#")) {
+                if (type === 'link_open') {
+                    return `?p=${current_dir}/${link}`;
+                } else if (type === 'image') {
+                    return `https://raw.githubusercontent.com/${user}/${repo}/master/${current_dir}/${link}`;
+                }
+            } else {
+                return link
+            }
         }
-    });
+    }).use(window.markdownitReplaceLink);
+
+    md.renderer.rules.table_open = function (tokens, idx) {
+        return '<table class="table table-striped">';
+    };
 
 
     function build_a(path, file_name) {
-        url = `https://raw.githubusercontent.com/${user}/${repo}/master/${path}`
-        return `<a href="#" onclick="render('${url}')">📄 ${file_name}</a>`
+        return `<a href="?r=${user}/${repo}&p=${path}">📄 ${file_name}</a>`
     }
     function path_to_tree(path_chunks, tree, path) {
         if (path_chunks.length === 1) {
@@ -62,12 +78,10 @@
     function build_dir(paths) {
         paths_with_init = [[]].concat(paths)
         dir_tree = paths_with_init.reduce((tree, path) => {
-            console.log("fooooooo", tree)
             chunks = path.split('/')
             return path_to_tree(chunks, tree, path)
         })
 
-        console.log(dir_tree)
         dom = path_tree_to_dom(dir_tree, [])
         dir.innerHTML = dom
     }
@@ -86,25 +100,25 @@
                     class: 'toc',
                     targetId: 'toc'
                 });
-            }
-            );
+            });
     }
 
     window.onload = function () {
         if (wiki.startsWith('https://github.com')) {
             [_user, _repo, _wiki, page] = wiki.replace('https://github.com/', '').split('/');
+            repository.innerHTML = `<a href="https://github.com/${_user}/${_repo}/wiki"><h5>${_user}/${_repo}</h5></a>`
             render(`https://raw.githubusercontent.com/wiki/${_user}/${_repo}/${page}.md`);
         } else {
             fetch(tree)
                 .then((res) => res.json())
                 .then((json) => {
-                    repository.innerHTML = `<h5>${user}/${repo}</h5>`
+                    repository.innerHTML = `<a href="https://github.com/${user}/${repo}"><h5>${user}/${repo}</h5></a>`
                     mds = json.tree
                         .filter((node) => node.path.slice(-3) == ".md")
                         .map((node) => node.path)
                     build_dir(mds)
-                    default_md =
-                        mds.filter((md) => md.startsWith("README"))[0]
+                    default_md = p
+                        || mds.filter((md) => md.startsWith("README"))[0]
                         || mds[0]
                     render(`https://raw.githubusercontent.com/${user}/${repo}/master/${default_md}`)
                 });
