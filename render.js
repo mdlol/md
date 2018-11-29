@@ -11,6 +11,7 @@
     const repository = document.getElementById('repository');
     const current_dir = p.split("/").slice(0, -1).join("/");
     const md = window.markdownit({
+        html: true,
         langPrefix: 'language-',
         linkify: false,
         highlight: (str, lang) => {
