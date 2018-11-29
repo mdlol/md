@@ -106,13 +106,13 @@
     window.onload = function () {
         if (wiki.startsWith('https://github.com')) {
             [_user, _repo, _wiki, page] = wiki.replace('https://github.com/', '').split('/');
-            repository.innerHTML = `<a href="https://github.com/${_user}/${_repo}/wiki"><h5>${_user}/${_repo}</h5></a>`
+            repository.innerHTML = `<a href="https://github.com/${_user}/${_repo}/wiki" target="_blank"><h5>${_user}/${_repo}</h5></a>`
             render(`https://raw.githubusercontent.com/wiki/${_user}/${_repo}/${page}.md`);
         } else {
             fetch(tree)
                 .then((res) => res.json())
                 .then((json) => {
-                    repository.innerHTML = `<a href="https://github.com/${user}/${repo}"><h5>${user}/${repo}</h5></a>`
+                    repository.innerHTML = `<a href="https://github.com/${user}/${repo}" target="_blank"><h5>${user}/${repo}</h5></a>`
                     mds = json.tree
                         .filter((node) => node.path.slice(-3) == ".md")
                         .map((node) => node.path)
