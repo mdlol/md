@@ -1,4 +1,6 @@
 (function (window) {
+    const light_theme_css = "https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css";
+    const dark_theme_css = "https://stackpath.bootstrapcdn.com/bootswatch/4.1.3/darkly/bootstrap.min.css";
     const urlParams = new URLSearchParams(window.location.search);
     const r = urlParams.get('r') || "ethereum/eth2.0-specs";
     const wiki = urlParams.get('wiki') || "";
@@ -105,6 +107,17 @@
                     targetId: 'toc'
                 });
             });
+    }
+    window.light_switch = function () {
+        bootstrap = document.getElementById("bootstrap");
+        custom_style = document.getElementById("custom-style");
+        if (bootstrap.href === light_theme_css) {
+            bootstrap.href = dark_theme_css
+            custom_style.href = 'dark.css'
+        } else {
+            bootstrap.href = light_theme_css
+            custom_style.href = 'light.css'
+        }
     }
 
     window.onload = function () {

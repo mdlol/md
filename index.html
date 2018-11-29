@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+    <link id="bootstrap" rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
         crossorigin="anonymous">
-
+    <link id="custom-style" rel="stylesheet" href="light.css">
     <title>Render Github Markdown</title>
 
 </head>
@@ -28,6 +28,7 @@
                     The table of content in the original markdown might not work. Please use the sidebar one. <br>
                     Report markdown rendering issue <a href="https://github.com/mdlol/md/issues">here</a>
                 </p>
+                <h5 onclick="light_switch()">💡</h5>
             </div>
             <div class="col-sm-6">
                 <div id="content"></div>
@@ -59,7 +60,6 @@
             overflow: auto;
             font-size: 85%;
             line-height: 1.45;
-            background-color: #f7f7f7;
             border-radius: 3px;
         }
 
